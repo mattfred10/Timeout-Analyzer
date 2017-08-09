@@ -1,7 +1,5 @@
 
 import psycopg2
-import csv
-import sys
 import MFLibrary as mf
 
 # TODO: Refactor to use dictionary
@@ -31,36 +29,72 @@ import MFLibrary as mf
 #
 # 7. White space was used with some effectiveness (e.g., St. Louis and Saint Louis used "Louis " to differentiate from Louisville)
 
+def count_appearances():
+    """Counts number of appearances of ABR with TEAMNAME.
+    The TEAMNAME:ABR combination with the greatest number
+    of appearances is most likely the correct combination.
+    """
 
-conn = psycopg2.connect(host='localhost', database='CollegeBBall', user='postgres', password='')
-cur = conn.cursor()
-cur.execute("""
-            SELECT
-            teams,event
-            FROM
-            playbyplay
-            WHERE event like '%Timeout%' and event not like '%TV%'
-            """)
-rows = cur.fetchall()
+    conn = psycopg2.connect(host='localhost', database='CollegeBBall', user='postgres', password='')
+    cur = conn.cursor()
+    cur.execute("""
+                SELECT
+                teams,event
+                FROM
+                playbyplay
+                WHERE event like '%Timeout%' and event not like '%TV%'
+                """)
+    rows = cur.fetchall()
 
-foundteams = []
+    foundteams = []
 
-for row in rows:
-    # Delete extraneous information
-    newteams = mf.string_functions.deletemany(row[0], ['[', ']',"'"," ",'Timeout','Full','30','20','.', "'s"]).replace('State', 'St').split(',')
-    print(newteams)  # why is this a list
-    for newteam in newteams:
-        inlist = False
-        testcombo = [newteam, row[1]]
-        for team in foundteams:  # use dict
-            if testcombo[0] == team[0] and testcombo[1] == team[1]:
-                inlist = True
-                team[2] += 1
-                break
-        if not inlist:
-            testcombo.append(1)
-            foundteams.append(testcombo)
+    for row in rows:
+        # Delete extraneous information
+        newteams = mf.string_functions.deletemany(row[0], ['[', ']',"'"," ",'Timeout','Full','30','20','.', "'s"]).replace('State', 'St').split(',')
+        print(newteams)  # why is this a list
+        for newteam in newteams:
+            inlist = False
+            testcombo = [newteam, row[1]]
+            for team in foundteams:  # use dict
+                if testcombo[0] == team[0] and testcombo[1] == team[1]:
+                    inlist = True
+                    team[2] += 1
+                    break
+            if not inlist:
+                testcombo.append(1)
+                foundteams.append(testcombo) # TODO: sort this list based on ABR (row[1]  I think).
 
-mf.csv_functions.write_list_to_csv("TOCounts.csv", foundteams)
+    mf.csv.write_list_to_csv("TOCounts.csv", foundteams)
 
-conn.close()
+    conn.close()
+
+
+def determine_team_abr():
+    """Assigns {ABR:TEAMNAME} based on the total number of timeouts called.
+    Using the source data, we cannot immediately determine which ABR corresponds to which team.
+    Therefore, we count each (ABR:TEAMNAME) and assign {ABR:TEAMNAME} based on the highest number of timeouts
+    ascribed to each combination. It is unlikely that an opponent that plays few games against a team
+    will have more TOs called than a particular team.
+
+    We also collect the number of timeouts called by opponents against certain teams, which we will
+    explore later.
+    """
+    # needs to be sorted by school abr (key in dict)
+    foundteams = mf.read_csv_to_list('TOCounts.csv')
+
+    lastabr = ''
+    lastnumTOs = 0
+    dictionarylist = []
+    value = ''
+    for row in foundteams:
+        if row[0] == lastabr:
+            if int(row[2]) > int(lastnumTOs):
+                lastnumTOs = row[2]
+                value = row[1]
+        else:
+            dictionarylist.append([lastabr, value])
+            lastabr = row[0]
+            lastnumTOs = row[2]
+            value = row[1]
+
+    mf.csv.write_list_to_csv("team_dictionary.csv", dictionarylist)
