@@ -21,13 +21,14 @@ errordict = {
     }
 
 def determine_TO_caller(event, teamlist, teamdict, errordict):
-    """Determines the caller of a
+    """Determines the caller of a timeout.
 
     Also verifies that the team dictionary is unique.
     """
 
     # ABRs that fail to uniquely identify a tam are added to unqiuecheck
     uniquecheck = []
+    # ABRs that pass are added to unqiuepass - only used during dictionary creation
     uniquepass = []
 
     if "television" in event.lower() or "tv " in event.lower() or "t.v." in event.lower() or "official" in event.lower():

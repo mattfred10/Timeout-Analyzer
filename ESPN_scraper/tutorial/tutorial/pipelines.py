@@ -23,8 +23,8 @@ class BBallPipeline(object):
         if len(item.get('time')) < len(item.get('event')):
             skipheader = 1
 
-        for i in range(0,len(item.get('time'))): #should be exactly one entry for every time stamp
-            minutes = item.get('time')[i].split(':')[0] #convert from string #:## to seconds - need for comparisons later
+        for i in range(0,len(item.get('time'))):  # Should be exactly one entry for every time stamp
+            minutes = item.get('time')[i].split(':')[0]  # Convert from string #:## to seconds - need for comparisons later
             seconds = item.get('time')[i].split(':')[1]
             timeleft = 60*int(minutes)+int(seconds)
             #event has +1 because the crawler is grabbing from .css(.header) even though the rest are from .game-detail. This is a simple fix but maybe not rigorous.
