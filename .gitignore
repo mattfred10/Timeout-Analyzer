@@ -12,6 +12,10 @@ data/
 # C extensions
 *.so
 
+# Large files
+*.csv
+*.db
+
 # Pycharm
 .idea/
 
