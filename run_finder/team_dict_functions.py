@@ -20,7 +20,7 @@ errordict = {
     'WIL' : 'Wilmington OH',
     }
 
-def determine_TO_caller(event, teamlist, teamdict, errordict):
+def determine_TO_caller(event, teamlist, teamdict):
     """Determines the caller of a timeout.
 
     Also verifies that the team dictionary is unique.
@@ -78,6 +78,8 @@ def determine_TO_caller(event, teamlist, teamdict, errordict):
 
 def is_caller_winning(teamlist, score, caller):
     """Returns T/F if the TO caller is winning"""
+    if caller == 'TV':
+        return 'TV'
 
     if teamlist.index(caller) == 0:
         if score[0] > score[1]:
@@ -91,3 +93,7 @@ def is_caller_winning(teamlist, score, caller):
             winning = True
 
     return winning
+
+def is_caller_running(scorediffdelta):
+    if scorediffdelta < 0:
+        runner = 0
