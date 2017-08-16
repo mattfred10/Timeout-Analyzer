@@ -8,11 +8,11 @@ class BBallSpider(scrapy.Spider):
     name = 'bball'
 
 
-    #defining this in a function rather than as "start_urls" to ensure that it operates correctly
+    # Defining this in a function rather than as "start_urls" to ensure that it operates correctly
     def start_requests(self):
         urls = []
-        #2005 is earliest play by play data on espn website
-        for i in range(2004,2016): #skip offseason
+        # 2005 is earliest play by play data on espn website
+        for i in range(2004,2016):  # skip offseason
             for iterdate in dategenerator(date(i, 11, 1), date(i, 12, 31)):
                 urls.append('http://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&dates=' + iterdate.strftime('%Y%m%d') + '&tz=America%2FNew_York')
             for iterdate in dategenerator(date(i+1, 1, 1), date(i+1, 4, 15)):
@@ -29,10 +29,9 @@ class BBallSpider(scrapy.Spider):
             yield scrapy.Request(url, callback=self.parse_game)
 
 
-
     def parse_game(self, response):
          yield {
-                'gameid': response.url.split('=')[1], #might be worth learning how to pass meta data, but this worked fine
+                'gameid': response.url.split('=')[1],
                 'teams': response.css('.team-name::text').extract(),
                 'time': response.css('.time-stamp::text').extract(),
                 'event': response.css('.game-details::text').extract(),

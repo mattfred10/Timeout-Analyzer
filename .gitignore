@@ -7,6 +7,7 @@ __pycache__/
 # Large files
 *.csv
 *.db
+*.sqlite3
 data/
 
 # C extensions

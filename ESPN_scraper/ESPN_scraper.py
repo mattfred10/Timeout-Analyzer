@@ -1,4 +1,4 @@
-#ESPN stopped support for their API, so we are going to use a web browers work around
+
 import scrapy
 
 class BBallSpider(scrapy.Spider):
