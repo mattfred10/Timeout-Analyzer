@@ -111,6 +111,7 @@ def get_playbyplay(gamedata):
         # I apparently don't have enough memory, so I'm periodically dumping the result list.
         if len(results) >= 5000:
             db_insert(results)
+            print("Data dumped!")
             results = []
 
     mf.csv.write_list("BadLogos.csv", badlogos)
